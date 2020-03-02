@@ -1,10 +1,13 @@
 package com.geray.coronavirustracker.controllers;
 
+import com.geray.coronavirustracker.models.LocationStats;
 import com.geray.coronavirustracker.services.CoronaVirusDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 @Controller
 public class HomeController{
@@ -15,7 +18,12 @@ public class HomeController{
     @GetMapping("/")
     public String home(Model model){
         //access with this
-        model.addAttribute("locationStats" , coronaVirusDataService.getAllStats());
+        List<LocationStats> allStats =  coronaVirusDataService.getAllStats();
+        int totalReportedCases = allStats.stream().mapToInt(stat -> stat.getLatestTotalCases()).sum();
+        int totalNewCases = allStats.stream().mapToInt(stat -> stat.getDiffFromPrevDay()).sum();
+        model.addAttribute("locationStats",allStats);
+        model.addAttribute("totalReportedCases",totalReportedCases);
+        model.addAttribute("totalNewCases",totalNewCases);
         return "home";
     }
 
